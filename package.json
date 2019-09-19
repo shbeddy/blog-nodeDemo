@@ -1,5 +1,5 @@
 {
-  "name": "blog-nodeDemo",
+  "name": "blog-nodedemo",
   "version": "1.0.0",
   "description": "个人简易博客",
   "main": "index.js",
@@ -16,5 +16,13 @@
   "bugs": {
     "url": "https://github.com/shbeddy/blog-nodeDemo/issues"
   },
-  "homepage": "https://github.com/shbeddy/blog-nodeDemo#readme"
+  "homepage": "https://github.com/shbeddy/blog-nodeDemo#readme",
+  "dependencies": {
+    "koa": "^2.8.1",
+    "koa-logger": "^3.2.1",
+    "koa-router": "^7.4.0",
+    "koa-static": "^5.0.0",
+    "koa-views": "^6.2.1",
+    "pug": "^2.0.4"
+  }
 }
