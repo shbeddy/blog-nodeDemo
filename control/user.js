@@ -22,13 +22,15 @@ exports.reg = async (ctx) =>{
             // 未查到数据,需要存储到数据库
             const _user = new User({
                 username,
-                password: encrypt(password)
+                password: encrypt(password),
+                commentNum: 0,
+                articleNum: 0
             })
             _user.save((err, data)=>{
                 if(err){
                     reject(err)
                 }else{
-                    resolve(data   )
+                    resolve(data)
                 }
             })
         })
@@ -44,7 +46,7 @@ exports.reg = async (ctx) =>{
             })
         }
     })
-    .catch(async ()=>{
+    .catch(async (err)=>{
         await ctx.render('isOk', {
             status: '注册失败,再来一次.'
         })
@@ -75,17 +77,62 @@ exports.login = async (ctx) =>{
             return ctx.render('isOk', {
                 status: '密码不正确,登录失败'
             })
-        }else{
-            await ctx.render('isOk', {
-                status: '登录成功'
-            }) 
         }
+        // 设置用户cookies
+        ctx.cookies.set('username', username, {
+            domain: 'localhost',
+            path: '/',
+            maxAge: 6e5,
+            httpOnly: true,
+            overwrite: false,
+            // signed: true
+        })
+        ctx.cookies.set('uid', data[0]._id, {
+            domain: 'localhost',
+            path: '/',
+            maxAge: 6e5,
+            httpOnly: true,
+            overwrite: false,
+            // signed: true
+        })
+        ctx.session = {
+            username,
+            uid: data[0]._id,
+            avatar: data[0].avatar,
+            role: data[0].role
+        }
+
+        await ctx.render('isOk', {
+            status: '登录成功'
+        }) 
     })
-    .catch(async ()=>{
+    .catch(async (err)=>{
         await ctx.render('isOk', {
             status: '登录失败'
         }) 
     })
 }
 
+exports.keepLog = async (ctx, next)=>{
+    if(ctx.session.isNew){ //session没有值
+        if(ctx.cookies.get('username')){
+            ctx.session = {
+                username: ctx.cookies.get('username'),
+                uid: ctx.cookies.get('uid')
+            }
+        }
+    }
 
+    await next()
+}
+
+exports.logout = async (ctx) =>{
+    ctx.session = null
+    ctx.cookies.set('username', null, {
+        maxAge: 0
+    })
+    ctx.cookies.set('uid', null, {
+        maxAge: 0
+    })
+    ctx.redirect("/")
+}

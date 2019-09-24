@@ -101,16 +101,33 @@ block scripts
           title,
           content: layedit.getContent(index)
         }
-
-        $.post("/article", data, (msg) => {
-          if(msg.status){
-            layer.alert('发表成功', (res) => {
-              location.href = "/"
-            })
-          }else{
-            layer.alert(`发表失败，失败信息：${msg.msg}`)
-          }
+        $.ajax({
+          type: 'POST',
+          url: "/article",
+          data: data,
+          success: (msg)=>{
+            if(msg.status){
+              console.log(data,msg)
+              layer.alert('发表成功', (res) => {
+                location.href = "/"
+              })
+            }else{
+              layer.alert(`发表失败，失败信息：${msg.msg}`)
+            }
+          },
+          error: (msg)=>{
+            console.log(msg)
+          },
         })
+        //- $.post("/article", data, (msg)=>{
+        //-   if(msg.status){
+        //-     layer.alert('发表成功', (res) => {
+        //-       location.href = "/"
+        //-     })
+        //-   }else{
+        //-     layer.alert(`发表失败，失败信息：${msg.msg}`)
+        //-   }
+        //- })
       })
 
 

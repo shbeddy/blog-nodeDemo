@@ -1,6 +1,12 @@
 // 连接数据库 导出db schema
 const mongoose = require('mongoose')
-const db = mongoose.createConnection('mongodb://localhost:27017/blogproject', {useNewUrlParser: true})
+const db = mongoose.createConnection(
+    'mongodb://localhost:27017/blogproject', 
+    {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    }
+)
 const Schema = mongoose.Schema
 
 // 挂载原生promise

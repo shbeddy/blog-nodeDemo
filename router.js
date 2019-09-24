@@ -1,13 +1,12 @@
 const Router = require('koa-router')
 const user = require('./control/user')
+const article = require('./control/article')
+const comment = require('./control/comment')
+const admin = require('./control/admin')
 
 const router = new Router
 
-router.get('/', user.keepLog, async (ctx) =>{
-    await ctx.render('index', {
-        title: '首页', 
-    })
-})
+router.get('/', user.keepLog, article.getList)
 // 处理路由 返回登录 注册页面
 // router.get('/user/:id', async (ctx)=>{
 //     ctx.body = ctx.params.id
@@ -25,5 +24,34 @@ router.post('/user/login', user.login)
 // 处理用户注册
 router.post('/user/reg', user.reg)
 
+// 处理用户注销
+router.get('/user/logout', user.logout)
+
+// 处理文章发表页面
+router.get('/article', user.keepLog, article.addPage)
+
+// 处理文章发表添加
+router.post("/article", user.keepLog, article.add)
+
+// 文章列表 分页
+router.get('/page/:id', article.getList)
+
+// 文章详情
+router.get('/article/:id', user.keepLog, article.details)
+
+// 发表评论
+router.post("/comment", user.keepLog, comment.save)
+
+// 后台管理
+router.get('/admin/:id', user.keepLog, admin.index)
+
+
+
+
+router.get('*', async ctx=>{
+    await ctx.render('404', {
+        title: '404'
+    })
+})
 
 module.exports = router
