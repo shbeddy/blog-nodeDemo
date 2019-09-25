@@ -1,10 +1,7 @@
-const {db} = require('../schema/config')
-const UserSchema = require('../schema/user')
+const Article = require('../modules/article')
+const User = require('../modules/user')
+const Comment = require('../modules/comment')
 const encrypt = require('../util/encrypt')
-
-// 通过db对象创建操作user数据库的模型对象
-const User = db.model('users', UserSchema)
-
 
 exports.reg = async (ctx) =>{
     // 获取数据
@@ -116,9 +113,14 @@ exports.login = async (ctx) =>{
 exports.keepLog = async (ctx, next)=>{
     if(ctx.session.isNew){ //session没有值
         if(ctx.cookies.get('username')){
+            let uid = ctx.cookies.get('uid')
+            let avatar = await User
+            .findById(uid)
+            .then(data=>data.avatar)
             ctx.session = {
                 username: ctx.cookies.get('username'),
-                uid: ctx.cookies.get('uid')
+                uid,
+                avatar
             }
         }
     }
@@ -135,4 +137,56 @@ exports.logout = async (ctx) =>{
         maxAge: 0
     })
     ctx.redirect("/")
+}
+
+exports.upload = async ctx =>{
+    const filename = ctx.req.file.filename
+
+    let data = {}
+    await User.update(  //更新数据库
+        {_id: ctx.session.uid},     //通过用户id
+        {$set:{avatar: '/avatar/'+ filename}}, 
+        (err, res)=>{
+            if(err){
+                data = {
+                    status: 0,
+                    message: '上传失败'
+                }
+            }else{
+                data = {
+                    status: 1,
+                    message: '上传成功'
+                }
+            }
+        })
+
+    ctx.body = data
+}
+
+exports.userList = async ctx =>{
+    const data = await User.find({role: 1})
+    ctx.body = {
+        code: 0,
+        conut: data.length,
+        data,
+    }
+}
+
+exports.del = async ctx =>{
+    const uid = ctx.params.id
+    let res = {
+        state: 1,
+        message: '删除成功'
+    }
+
+    await User
+    .findById(uid)
+    .then(data=>data.remove())
+    .catch(err=>{
+        res = {
+            state: 0,
+            message: '删除失败'
+        }
+    })
+    ctx.body = res
 }

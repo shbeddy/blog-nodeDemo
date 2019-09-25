@@ -115,8 +115,8 @@ block scripts
               layer.alert(`发表失败，失败信息：${msg.msg}`)
             }
           },
-          error: (msg)=>{
-            console.log(msg)
+          error: (err)=>{
+            console.log(err)
           },
         })
         //- $.post("/article", data, (msg)=>{

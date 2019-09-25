@@ -1,12 +1,6 @@
-const {db} = require('../schema/config')
-const ArticleSchema = require('../schema/article')
-const UserSchema = require('../schema/user')
-const CommentSchema = require('../schema/comment')
-
-// 通过db对象创建操作数据库的模型对象
-const Article = db.model('articles', ArticleSchema)
-const User = db.model('users', UserSchema)
-const Comment = db.model('comments', CommentSchema)
+const Article = require('../modules/article')
+const User = require('../modules/user')
+const Comment = require('../modules/comment')
 
 exports.save = async ctx =>{
     let message = {
@@ -30,10 +24,11 @@ exports.save = async ctx =>{
                 msg: '评论成功'
             }
             Article
-            .update({   //更新文章评论计数器
-                _id: data.article}, 
+            .update(    //更新文章评论计数器
+                {_id: data.article}, 
                 {$inc:{commentNum: 1}}, 
-                (err)=>{if(err)console.log(err)})
+                (err)=>{if(err)console.log(err)}
+            )
             User
             .update(   //更新用户评论计数器
                 {_id: data.from},
@@ -51,3 +46,36 @@ exports.save = async ctx =>{
         })
 
 }
+
+exports.comList = async ctx =>{
+    const uid = ctx.session.uid
+
+    const data = await Comment
+    .find({from: uid})
+    .populate('article', 'title')
+
+    ctx.body = {
+        code: 0,
+        conut: data.length,
+        data
+    }
+}
+
+exports.del = async ctx =>{
+    const comId = ctx.params.id
+    let res = {
+        state: 1,
+        message: '删除成功'
+    }
+    await Comment.findById(comId)
+    .then(data=>{data.remove()})
+    .catch(err=>{
+        res = {
+            state: 0,
+            message: '删除失败'
+        }
+    })
+
+    ctx.body = res
+}
+

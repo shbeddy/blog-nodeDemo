@@ -15,4 +15,21 @@ const UserSchema = new Schema({
     commentNum: Number
 }, {versionKey: false})
 
+UserSchema.post('remove', (doc)=>{
+    const Comment = require('../modules/comment')
+    const Article = require('../modules/article')
+    const {_id} = doc
+    console.log(doc);
+
+    Comment
+    .find({from: _id})
+    .then(data=>{
+        data.forEach(v=>v.remove())
+    })
+    Article
+    .find({author: _id})
+    .then(data =>{
+        data.forEach(v=>v.remove())
+    })
+})
 module.exports = UserSchema
