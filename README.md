@@ -6,3 +6,4 @@ npm i
 mongod --dbpath data/db
 
 node app
+

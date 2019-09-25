@@ -17,34 +17,34 @@ exports.save = async ctx =>{
     const comment = new Comment(data)
 
     await comment
-        .save()
-        .then(data=>{
-            message = {
-                status: 1,
-                msg: '评论成功'
+    .save()
+    .then(data=>{
+        message = {
+            status: 1,
+            msg: '评论成功'
+        }
+        Article
+        .update(    //更新文章评论计数器
+            {_id: data.article}, 
+            {$inc:{commentNum: 1}}, 
+            (err)=>{if(err)console.log(err)}
+        )
+        User
+        .update(   //更新用户评论计数器
+            {_id: data.from},
+            {$inc:{commentNum: 1}},
+            err=>{
+                if(err)console.log(err)
             }
-            Article
-            .update(    //更新文章评论计数器
-                {_id: data.article}, 
-                {$inc:{commentNum: 1}}, 
-                (err)=>{if(err)console.log(err)}
-            )
-            User
-            .update(   //更新用户评论计数器
-                {_id: data.from},
-                {$inc:{commentNum: 1}},
-                err=>{
-                    if(err)console.log(err)
-                }
-            )
-        })
-        .catch(err=>{
-            message = {
-                status: 0,
-                msg: '评论失败'
-            }
-        })
-
+        )
+    })
+    .catch(err=>{
+        message = {
+            status: 0,
+            msg: '评论失败'
+        }
+    })
+    ctx.body = message   
 }
 
 exports.comList = async ctx =>{

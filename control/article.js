@@ -37,13 +37,13 @@ exports.add = async (ctx) => {
         })
     })
     .then((data)=>{
-        ctx.bode = {
+        ctx.body = {
             msg: '发表成功',
             status: 1
         }
     })
     .catch((err)=>{
-        ctx.bode = {
+        ctx.body = {
             msg: '发表失败',
             status: 0
         }
